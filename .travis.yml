@@ -1,0 +1,28 @@
+sudo: required
+services: 
+  - docker
+
+before_install:
+  - docker build -t mina/docker-react -f Dockerfile.dev .
+
+script:
+  - docker run mina/docker-react npm run test -- --coverage
+
+# after creating AWS env. and have a specific region related to that docker instance
+deploy:
+  provider: elasticbeanstalk
+  region: "us-west-2"
+  # name of the app
+  app: "aws-docker-react"
+  # env. name
+  env: "Docker-env"
+  # S3 bucket-name related to aws region selected also
+  bucket_name: "elasticbeanstalk-us-west-2-2345678"
+  # same name of the app
+  bucket_path: "aws-docker-react"
+  on:
+    branch: master
+  # AWS_ACCESS_KEY is env variable you create in travis after generating it on AWS
+  access_key_id: $AWS_ACCESS_KEY
+  secret_access_key:
+    secure: "$AWS_SECRET_KEY"
